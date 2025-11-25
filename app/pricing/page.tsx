@@ -76,7 +76,7 @@ export default function PricingPage() {
     <div className="min-h-screen bg-black text-white">
       <div className="mx-auto max-w-4xl px-6 py-16">
         <header className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold">Pricing</h1>
+          <h1 className="text-3xl md:text-4xl font-bold">New Pricing</h1>
           <p className="mt-3 text-gray-400">
             Choose the LiquidMail plan that fits the way you work.
           </p>
