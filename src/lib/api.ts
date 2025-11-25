@@ -1,5 +1,6 @@
+// -------------------- Base URL --------------------
 const BACKEND_BASE_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 async function handleResponse(res: Response) {
   if (!res.ok) {
@@ -9,6 +10,7 @@ async function handleResponse(res: Response) {
   return res.json();
 }
 
+// -------------------- Gmail OAuth --------------------
 export async function getGmailOAuthURL(): Promise<{ oauth_url: string }> {
   const res = await fetch(`${BACKEND_BASE_URL}/oauth/gmail/url`, {
     method: "GET",
@@ -54,11 +56,48 @@ export async function generateReply(input: {
   return handleResponse(res);
 }
 
-export async function createCheckoutSession(customerEmail: string) {
-  const res = await fetch(`${BACKEND_BASE_URL}/create-checkout-session`, {
+// -------------------- Stripe Billing --------------------
+
+export type PlanId = "basic" | "pro" | "business";
+
+// ⚠️ Replace these with your REAL Stripe Price IDs
+const STRIPE_PRICE_IDS: Record<PlanId, string> = {
+  basic: "price_1SXOsoKxEJuMtn8GwV0gVNMJ",
+  pro: "price_1SXP3kKxEJuMtn8GwWDj4clw",
+  business: "price_1SXOtCKxEJuMtn8GmF1dibBg",
+};
+
+export async function createCheckoutSession(
+  planId: PlanId
+): Promise<{ checkout_url: string }> {
+  const price_id = STRIPE_PRICE_IDS[planId];
+
+  const res = await fetch(`${BACKEND_BASE_URL}/stripe/create-checkout-session`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ customer_email: customerEmail }),
+    credentials: "include",
+    body: JSON.stringify({ price_id }),
   });
-  return handleResponse(res);
+
+  if (!res.ok) {
+    throw new Error("Failed to create checkout session");
+  }
+
+  return res.json();
+}
+
+export async function createBillingPortalSession(): Promise<{
+  portal_url: string;
+}> {
+  const res = await fetch(`${BACKEND_BASE_URL}/stripe/create-portal-session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create billing portal session");
+  }
+
+  return res.json();
 }

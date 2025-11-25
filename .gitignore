@@ -1,41 +1,48 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ───────────────────────────────
+# Environment Variables
+# ───────────────────────────────
+.env
+.env.*
+*.env
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# ───────────────────────────────
+# Python
+# ───────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+dist/
+build/
 
-# testing
-/coverage
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
 
-# next.js
-/.next/
-/out/
+# Sensitive Backend Files
+credentials.json
+token.json
+tokens.json
 
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# ───────────────────────────────
+# Node / Next.js
+# ───────────────────────────────
+node_modules/
+.next/
+out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+.pnp/
+.pnp.js
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# ───────────────────────────────
+# OS Junk Files
+# ───────────────────────────────
+.DS_Store
+*.swp
+Thumbs.db
