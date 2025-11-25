@@ -61,16 +61,15 @@ export async function generateReply(input: {
 export type PlanId = "basic" | "pro" | "business";
 
 // ⚠️ Replace these with your REAL Stripe Price IDs
-const STRIPE_PRICE_IDS: Record<PlanId, string> = {
+export const STRIPE_PRICE_IDS: Record<PlanId, string> = {
   basic: "price_1SXOsoKxEJuMtn8GwV0gVNMJ",
   pro: "price_1SXP3kKxEJuMtn8GwWDj4clw",
   business: "price_1SXOtCKxEJuMtn8GmF1dibBg",
 };
 
 export async function createCheckoutSession(
-  planId: PlanId
-): Promise<{ checkout_url: string }> {
-  const price_id = STRIPE_PRICE_IDS[planId];
+  price_id: string
+): Promise<{ url: string }> {
 
   const res = await fetch(`${BACKEND_BASE_URL}/stripe/create-checkout-session`, {
     method: "POST",

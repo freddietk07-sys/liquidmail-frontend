@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { createCheckoutSession, PlanId } from "@/lib/api";
+import {
+  createCheckoutSession,
+  PlanId,
+  STRIPE_PRICE_IDS,
+} from "@/lib/api";
 
 const plans: {
   id: PlanId;
@@ -58,8 +62,8 @@ export default function PricingPage() {
   async function handleSubscribe(planId: PlanId) {
     try {
       setLoadingPlan(planId);
-      const res = await createCheckoutSession(planId);
-      window.location.href = res.checkout_url;
+      const res = await createCheckoutSession(STRIPE_PRICE_IDS[planId]);
+      window.location.href = res.url;
     } catch (err) {
       console.error(err);
       alert("There was a problem starting checkout. Please try again.");

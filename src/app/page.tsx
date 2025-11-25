@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Button from "@/components/Button";
-import { createCheckoutSession } from "@/lib/api";
+import { createCheckoutSession, STRIPE_PRICE_IDS } from "@/lib/api";
 
 export default function HomePage() {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export default function HomePage() {
     try {
       setCheckoutError(null);
       setCheckoutLoading(true);
-      const res = await createCheckoutSession(email);
+      const res = await createCheckoutSession(STRIPE_PRICE_IDS.basic);
       if (!res.url) {
         setCheckoutError("No checkout URL returned.");
         setCheckoutLoading(false);
