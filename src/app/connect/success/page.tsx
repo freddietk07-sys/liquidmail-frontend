@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function ConnectSuccessPage() {
   const router = useRouter();
-  const [message, setMessage] = useState("Finishing setup…");
+  const [message, setMessage] = useState("Finishing setup...");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -24,7 +24,7 @@ export default function ConnectSuccessPage() {
       <div className="max-w-md w-full text-center">
         {/* Success Icon */}
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15 border border-green-500/40">
-          <span className="text-3xl">✅</span>
+          <span className="text-3xl">OK</span>
         </div>
 
         {/* Title */}
@@ -39,7 +39,7 @@ export default function ConnectSuccessPage() {
 
         {/* Old-page improved paragraph */}
         <p className="text-gray-500 mb-8 text-center">
-          Your Gmail account is now linked to LiquidMail.  
+          Your Gmail account is now linked to LiquidMail.
           AI-powered automated replies can now be generated and sent for you.
         </p>
 

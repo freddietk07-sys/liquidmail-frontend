@@ -2,74 +2,59 @@
 
 import { useState } from "react";
 import { getGmailOAuthURL } from "@/lib/api";
+import Button from "@/components/Button";
 
 export default function ConnectPage() {
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [userEmail, setUserEmail] = useState("test@example.com"); // TODO: replace with signed-in user's email
+  const [error, setError] = useState<string | null>(null);
 
   async function handleConnect() {
-    if (!userEmail) {
-      setErrorMsg("Please enter an email to continue.");
-      return;
-    }
-
     try {
+      setError(null);
       setLoading(true);
-      setErrorMsg("");
 
-      const res = await getGmailOAuthURL(userEmail);
+      const res = await getGmailOAuthURL();
 
       if (!res.oauth_url) {
-        setErrorMsg("Error: No OAuth URL returned.");
+        setError("No OAuth URL returned from backend.");
         setLoading(false);
         return;
       }
 
-      // Redirect user to Google OAuth
+      // Redirect to Google OAuth
       window.location.href = res.oauth_url;
-
     } catch (err) {
       console.error(err);
-      setErrorMsg("Failed to start OAuth.");
+      setError("Failed to start OAuth. Check the backend URL and logs.");
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-[#0D0D10] text-white">
-      <h1 className="text-4xl font-bold mb-4">Connect Gmail</h1>
+    <div className="min-h-[70vh] flex items-center justify-center px-6">
+      <div className="max-w-md w-full rounded-2xl border border-slate-800 bg-slate-900/50 p-8">
+        <h1 className="text-2xl font-bold mb-2">Connect your Gmail</h1>
+        <p className="text-sm text-slate-300 mb-6">
+          We use Google's official OAuth flow. LiquidMail only gets the
+          permissions it needs to draft and send emails on your behalf.
+        </p>
 
-      <p className="text-gray-400 mb-6 text-center max-w-md">
-        Link your Gmail account so LiquidMail can automatically send AI-powered replies for you.
-      </p>
+        <Button onClick={handleConnect} disabled={loading} fullWidth>
+          {loading ? "Redirecting to Google..." : "Continue with Google"}
+        </Button>
 
-      <div className="w-full max-w-sm flex flex-col gap-2 mb-4">
-        <label className="text-sm text-gray-400">Email to connect</label>
-        <input
-          type="email"
-          value={userEmail}
-          onChange={(e) => setUserEmail(e.target.value)}
-          className="w-full px-3 py-2 rounded-md bg-[#161823] border border-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-          placeholder="you@example.com"
-        />
+        {error && (
+          <p className="mt-3 text-sm text-red-400 bg-red-950/40 border border-red-900 rounded-lg p-2">
+            {error}
+          </p>
+        )}
+
+        <p className="mt-4 text-[11px] text-slate-500 leading-relaxed">
+          By continuing, you agree that LiquidMail may access your Gmail account
+          to draft and send emails you approve. You can revoke access any time
+          in your Google account settings.
+        </p>
       </div>
-
-      {errorMsg && (
-        <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-2 rounded-lg mb-4">
-          {errorMsg}
-        </div>
-      )}
-
-      <button
-        onClick={handleConnect}
-        disabled={loading}
-        className={`px-6 py-3 rounded-lg font-semibold transition
-          ${loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}
-        `}
-      >
-        {loading ? "Redirecting…" : "Connect Gmail"}
-      </button>
     </div>
   );
 }

@@ -4,19 +4,18 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiMail, FiSettings, FiHome, FiDollarSign } from "react-icons/fi";
-import { getGmailStatus } from "@/lib/api";
+import { getConnectionStatus } from "@/lib/api";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const demoUserEmail = "test@example.com"; // TODO: replace with authenticated user's email
   const [gmailConnected, setGmailConnected] = useState<boolean | null>(null);
 
   // Fetch Gmail connection status
   useEffect(() => {
     async function loadStatus() {
       try {
-        const res = await getGmailStatus(demoUserEmail);
-        setGmailConnected(res.connected);
+        const res = await getConnectionStatus();
+        setGmailConnected(res.status === "connected");
       } catch {
         setGmailConnected(false);
       }
@@ -50,7 +49,7 @@ export default function Sidebar() {
 
         <span className="text-gray-300">
           {gmailConnected === null
-            ? "Checking Gmail…"
+            ? "Checking Gmail..."
             : gmailConnected
             ? "Gmail Connected"
             : "Not Connected"}

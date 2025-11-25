@@ -1,57 +1,64 @@
-// src/lib/api.ts
+const BACKEND_BASE_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-
-console.log("FRONTEND USING BASE_URL =", BASE_URL);
-
-// Simple helper for all requests
-async function api(method: string, path: string, body?: any) {
-  const url = `${BASE_URL}${path}`;
-
-  const options: RequestInit = {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  if (body) options.body = JSON.stringify(body);
-
-  const res = await fetch(url, options);
-
+async function handleResponse(res: Response) {
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(
-      `${method} ${path} failed (${res.status}): ${text}`
-    );
+    throw new Error(`Request failed (${res.status}): ${text}`);
+  }
+  return res.json();
+}
+
+export async function getGmailOAuthURL(): Promise<{ oauth_url: string }> {
+  const res = await fetch(`${BACKEND_BASE_URL}/oauth/gmail/url`, {
+    method: "GET",
+    credentials: "include",
+  });
+  return handleResponse(res);
+}
+
+export async function getConnectionStatus(): Promise<{
+  status: "connected" | "not_connected" | "unknown";
+}> {
+  const res = await fetch(`${BACKEND_BASE_URL}/connection-status`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    return { status: "unknown" };
   }
 
   return res.json();
 }
 
-// 1) Get Gmail OAuth URL
-export function getGmailOAuthURL(userEmail: string) {
-  return api(
-    "GET",
-    `/gmail/connect?user_email=${encodeURIComponent(userEmail)}`
-  );
+export async function sendTestEmail(): Promise<{ detail: string }> {
+  const res = await fetch(`${BACKEND_BASE_URL}/test-email`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return handleResponse(res);
 }
 
-// 2) Get Gmail status (fixed)
-export function getGmailStatus(userEmail: string) {
-  return api(
-    "GET",
-    `/gmail/status?user_email=${encodeURIComponent(userEmail)}`
-  );
+export async function generateReply(input: {
+  sender_name?: string;
+  email_text: string;
+  tone_hint?: string;
+}): Promise<{ reply: string }> {
+  const res = await fetch(`${BACKEND_BASE_URL}/generate-reply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(input),
+  });
+  return handleResponse(res);
 }
 
-// 3) Send email
-export function sendEmail(data: {
-  user_email: string;
-  to: string;
-  subject: string;
-  message: string;
-}) {
-  return api("POST", "/gmail/send", data);
+export async function createCheckoutSession(customerEmail: string) {
+  const res = await fetch(`${BACKEND_BASE_URL}/create-checkout-session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ customer_email: customerEmail }),
+  });
+  return handleResponse(res);
 }
