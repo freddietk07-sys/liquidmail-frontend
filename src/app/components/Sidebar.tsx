@@ -8,14 +8,15 @@ import { getGmailStatus } from "@/lib/api";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const demoUserEmail = "test@example.com"; // TODO: replace with authenticated user's email
   const [gmailConnected, setGmailConnected] = useState<boolean | null>(null);
 
   // Fetch Gmail connection status
   useEffect(() => {
     async function loadStatus() {
       try {
-        const res = await getGmailStatus();
-        setGmailConnected(res.gmailConnected);
+        const res = await getGmailStatus(demoUserEmail);
+        setGmailConnected(res.connected);
       } catch {
         setGmailConnected(false);
       }

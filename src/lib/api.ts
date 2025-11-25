@@ -1,54 +1,57 @@
 // src/lib/api.ts
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://liquid-mail-backend-production.up.railway.app";
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-// Generic GET request
-export async function apiGet(path: string) {
-  const res = await fetch(`${BASE_URL}${path}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`GET ${path} failed`);
-  return res.json();
-}
+console.log("FRONTEND USING BASE_URL =", BASE_URL);
 
-// Generic POST request
-export async function apiPost(path: string, body: any) {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+// Simple helper for all requests
+async function api(method: string, path: string, body?: any) {
+  const url = `${BASE_URL}${path}`;
+
+  const options: RequestInit = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  if (body) options.body = JSON.stringify(body);
+
+  const res = await fetch(url, options);
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`POST ${path} failed: ${err}`);
+    const text = await res.text();
+    throw new Error(
+      `${method} ${path} failed (${res.status}): ${text}`
+    );
   }
 
   return res.json();
 }
 
-// -------------------------------------------
-// OAuth: Get Gmail login URL
-// -------------------------------------------
-export function getGmailOAuthURL() {
-  return apiGet("/oauth/gmail/login");
+// 1) Get Gmail OAuth URL
+export function getGmailOAuthURL(userEmail: string) {
+  return api(
+    "GET",
+    `/gmail/connect?user_email=${encodeURIComponent(userEmail)}`
+  );
 }
 
-// -------------------------------------------
-// NEW: Gmail connection status
-// -------------------------------------------
-export function getGmailStatus() {
-  return apiGet("/auth/status");
+// 2) Get Gmail status (fixed)
+export function getGmailStatus(userEmail: string) {
+  return api(
+    "GET",
+    `/gmail/status?user_email=${encodeURIComponent(userEmail)}`
+  );
 }
 
-// -------------------------------------------
-// Send email through backend
-// -------------------------------------------
+// 3) Send email
 export function sendEmail(data: {
   user_email: string;
   to: string;
   subject: string;
   message: string;
 }) {
-  return apiPost("/gmail/send", data);
+  return api("POST", "/gmail/send", data);
 }

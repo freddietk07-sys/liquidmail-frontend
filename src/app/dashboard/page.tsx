@@ -6,13 +6,14 @@ import { getGmailStatus } from "@/lib/api";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const demoUserEmail = "test@example.com"; // TODO: replace with authenticated user's email
   const [gmailConnected, setGmailConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const status = await getGmailStatus();
-        setGmailConnected(status.gmailConnected);
+        const status = await getGmailStatus(demoUserEmail);
+        setGmailConnected(status.connected);
       } catch (err) {
         console.error("Failed to load Gmail status:", err);
         setGmailConnected(false);
